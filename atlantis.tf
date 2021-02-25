@@ -30,7 +30,37 @@ module "atlantis" {
 
   allow_unauthenticated_access = true
   allow_github_webhooks        = true
+
+  policies_arn = [
+    "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy",
+    aws_iam_policy.atlantis-allow-s3-write.arn
+  ]
 }
+
+resource "aws_iam_policy" "atlantis-allow-s3-write" {
+  name = "atlantis-allow-s3-write"
+  policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Action   = ["s3:*"]
+          Effect   = "Allow"
+          Resource = [
+            "arn:aws:s3:::missionsa-atlantis-backend",
+            "arn:aws:s3:::missionsa-atlantis-backend/*",
+          ]
+        },
+        {
+          Action = [
+            "dynamodb:PutItem",
+            "dynamodb:GetItem"
+          ]
+          Effect = "Allow"
+          Resource = ["arn:aws:dynamodb:us-west-2:096194284558:table/missionsa-atlantis-backend"]
+        }
+      ]
+    })
+  }
 
 data "aws_ssm_parameter" "github_user" {
   name = "github_user"
