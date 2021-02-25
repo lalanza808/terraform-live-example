@@ -10,3 +10,13 @@ terraform {
     dynamodb_table = "missionsa-atlantis-backend"
   }
 }
+
+resource "aws_s3_bucket" "b" {
+  bucket = "lance-atlantis-pr-test-bucket"
+  acl    = "private"
+
+  tags = {
+    Name        = "My bucket"
+    Environment = "Dev"
+  }
+}
